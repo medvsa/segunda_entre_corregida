@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <link rel="icon" type="image/png" href= "img/favicon.png" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Aves de Chile</title>
+
+
+    <!-- Vamos a buscar el CSS de Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <!--Vamos a buscar el CSS de Font Awesome-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <!-- Vamos por nuestro CSS, basado en https://startbootstrap.com/template-overviews/grayscale/ -->
+    <link href="style.css" rel="stylesheet">
+    <!-- Aquí vamos por el estilo y script del mapa-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
+</head>
+
+<body id="page-top">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand js-scroll-trigger" href="#page-top"><span class="titular"></span></a>
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                Menu
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="#dataviz">Visualizaciones</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Este encabezado viene de https://startbootstrap.com/snippets/video-header/ -->
+    <header>
+        <div class="overlay"></div>
+        <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop">
+            <!--Favor revisar https://www.w3schools.com/html/html5_video.asp-->
+            <source src="VIDEO/carpintero.mp4" type="video/mp4">
+        </video>
+        <div class="container h-100">
+            <div class="d-flex text-center h-100">
+                <div class="my-auto w-100 text-white">
+                    <h1 class="display-3 titular"></h1>
+                    <h2>y sus características</h2>
+                    <p class="pt-3"><a href="#about"><i class="fas fa-3x fa-arrow-alt-circle-down"></i></a></p>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- About Section -->
+    <section id="about" class="about-section text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="text-white mb-4">Lo que debes saber!</h2>
+                    <p class="text-white-50"> Aquí podrás encontrar información sobre la avifauna de Chile. De norte a sur, de mar a cordillera, 439 especies de aves se encuentran en Chile. 296 de éstas anidan en el país, mientras las otras son visitantes habituales u ocasionales del territorio. Existen en Chile 11 especies de aves que no se encuentran en ninguna otra parte del planeta, de las cuales 6 son continentales y 5 insulares. Hoy en día 33 especies están globalmente amenazadas de extinción.
+                </div>
+            </div>
+            <img src="media/ipad.png" class="img-fluid" alt="">
+        </div>
+    </section>
+
+    <!-- dataviz Section -->
+    <section id="dataviz" class="dataviz-section bg-light">
+        <div class="container">
+
+            <!-- MAPA -->
+            <div class="row align-items-center no-gutters mb-4 mb-lg-5">
+                <div class="col-xl-8 col-lg-7">
+                    <div id="leaflet"></div>
+                </div>
+                <div class="col-xl-4 col-lg-5">
+                    <div class="featured-text text-center text-lg-left">
+                        <h4>¿Dónde observar aves?</h4>
+                        <p class="text-black-100 mb-0">Aquí encontrarás los mejores lugares para avistar aves a lo largo del país. Desde ríos y humedales hasta parques nacionales. </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRIMER GRÁFICO -->
+            <div class="row justify-content-center no-gutters mb-5 mb-lg-0">
+                <div class="col-lg-6">
+                    <svg id="chart-1"></svg>
+                </div>
+                <div class="col-lg-6">
+                    <div class="bg-black text-center h-100 project">
+                        <div class="d-flex h-100">
+                            <div class="project-text w-100 my-auto text-center text-lg-left">
+                                <h4 class="text-white">Ovoteca</h4>
+                                <p class="mb-0 text-white-50">Tras la fecundación, el huevo de las aves es puesto por la hembra, y durante un tiempo es empollado. Posteriormente un único polluelo eclosiona de cada huevo. El número medio de los huevos se extiende desde uno (como en los cóndores) hasta incluso aproximadamente diecisiete (en la perdiz pardilla). En este gráfico puedes distinguir la variedad de tamaños que presentan los huevos, dependiendo de la especie a la que pertenecen.</p>
+                                <hr class="d-none d-lg-block mb-0 ml-0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEGUNDO GRÁFICO -->
+            <div class="row justify-content-center no-gutters">
+                <div class="col-lg-6">
+                    <svg id="chart-2"></svg>
+                </div>
+                <div class="col-lg-6 order-lg-first">
+                    <div class="bg-black text-center h-100 project">
+                        <div class="d-flex h-100">
+                            <div class="project-text w-100 my-auto text-center text-lg-right">
+                                <h4 class="text-white">Peligro de Extinción</h4>
+                                <p class="mb-0 text-white-50"> Existen distintos niveles de peligro de extinción. Rojo: Extra Crítico Amarillo: Crítico Azul: Vulnerable Casi Amenazado: Lila </p>
+                                <hr class="d-none d-lg-block mb-0 mr-0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black small text-center text-white-50">
+        <div class="container">
+            <p><span class="titular"></span> fue desarrollado por Claudia Medusa González para Multimedia II</p>
+            <p>Segundo semestre, 2018 · Diseño Gráfico</p>
+            <p>Universidad de Chile</p>
+            <p><a href="#page-top"><i class="fas fa-arrow-alt-circle-up"></i></a></p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    <!--ahora aprovechamos que Bootstrap necesita jQuery, para manipular el DOM-->
+    <script>
+        (function($) {
+            "use strict"; // Start of use strict
+
+            $(".titular").text("Aves de Chile");
+        })(jQuery); // End of use strict
+    </script>
+
+    <!--cript de bootstrap-->
+    <script src="js/theme.js"></script>
+
+    <!--Visualizaciones-->
+
+    <!--Mapa-->
+
+    <script>
+        var mymap = L.map('leaflet').setView([-26.6934242, -68.5253944,4], 5);
+
+        var georeferencias =[
+        {
+            lugar: "Parque Nacional Lauca",
+            coordenadas: [-18.2346336, -69.3395002]
+        },
+            
+        {
+            lugar: "Desembocadura Río Elqui",
+            coordenadas: [-29.9474875, -71.1435313]
+        },    
+            
+        {
+            lugar: "Humedal El Culebrón",
+            coordenadas: [-29.9624245, -71.3238887]
+        }, 
+        
+        {
+            lugar: "Playa Changa de Coquimbo",
+            coordenadas: [-29.9592726, -71.3334993]
+        }, 
+        
+        {
+            lugar: "Estero Tongoy",
+            coordenadas: [-30.2687036, -71.4799323]
+        }, 
+        
+        {
+            lugar: "Playa Grande de  Tongoy",
+            coordenadas: [-30.2687028, -71.4799324]
+        },
+        
+        {
+            lugar: "Desembocadura Rio Limari",
+            coordenadas: [-30.2687028, -71.4799324]
+        },
+            
+        {
+            lugar: "Santuario de La Naturaleza Laguna Conchalí",
+            coordenadas: [-31.8803807, -71.4978176]
+        },
+        
+        {
+            lugar: "Mirador Faro Punta Angeles",
+            coordenadas: [-33.0227231, -71.6474297]
+        },
+        
+        {
+            lugar: "Reserva Nacional Lago Peñuelas",
+            coordenadas: [-33.1472373, -71.4821287]
+        },
+        
+        {
+            lugar: "Humedal Parque La Isla",
+            coordenadas: [-32.9187367, -71.5045166]
+        },
+        
+        {
+            lugar: "Parque Nacional La Campana",
+            coordenadas: [-33.0016536, -71.1316435]
+        },
+        
+        {
+            lugar: "Estero Lampa",
+            coordenadas: [-33.3149385, -70.8842682]
+        },
+        
+        {
+            lugar: "Santuario de la Naturaleza Laguna el Peral",
+            coordenadas: [-33.5055317, -71.6089269]
+        },
+                    
+        {
+            lugar: "Embalse El Yeso",
+            coordenadas: [-33.6515326, -70.0643922]
+        },
+        
+        {
+            lugar: "Santuario de la Naturaleza Rio Cruces",
+            coordenadas: [-39.8097705, -73.2715328]
+        },
+        
+         {
+            lugar: "Parque Nacional Torres del Paine",
+            coordenadas: [-50.9423262, -73.4089766]
+        },
+        
+        ];
+        
+         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+            maxZoom: 18,
+            id: 'mapbox.streets'
+        }).addTo(mymap);
+       for (var x = 0; x < georeferencias.length; x++) {
+            lat = georeferencias[x].coordenadas[0];
+            lon = georeferencias[x].coordenadas[1];
+        L.marker([lat, lon]).addTo(mymap).bindPopup(georeferencias[x].lugar);
+            console.log(lat + "," + lon);
+        }
+        
+
+    </script>
+
+    <!-- Data Driven Documents (DDD = d3)-->
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+   
+
+    
+ <!--grafico 1 -->
+
+    <script>
+        var huevos = [
+        {especie: "Pato Colorado", milimetros: 1645 },
+        {especie: "Pingüino Rey", milimetros: 7828 },
+        {especie: "Gallina Ciega", milimetros:560},
+        {especie:"Jilguero", milimetros:234},
+        {especie:"Mirlo", milimetros:414},
+        {especie:"Rara", milimetros:475},
+        {especie:"Picaflor", milimetros:135},
+        {especie:"Zorzal", milimetros:768},
+        {especie:"Lechuza", milimetros:1344},
+        {especie:"Queltehue", milimetros:1850},
+        {especie:"Chincol", milimetros:352}
+        ];
+        var coso = d3.select("#chart-1").attr("width", "100%").attr("height", "500").style("background", "RGBA(8, 97, 68, 1.00)");
+        coso.selectAll("rect").data(huevos).enter().append("rect").attr("x",40).attr("y", function(d, i) { return (i + 1) * 40; }).attr("width", function(d) { return d.milimetros/24 }).attr("height",25).attr("fill","RGBA(156, 244, 213, 1.00)")
+         coso.selectAll("text").data(huevos).enter().append("text").text(function(d) {return (d.especie + " (" + d.milimetros + " mm²)")}).attr("text-anchor", "start").attr("x", function(d, i) { return (d.milimetros/24)+50 }).attr("y", function(d, i) { return ((i + 1) * 40)+20 }).attr("font-family", "Dosis").attr("font-size", "12px").attr("fill", "white"); 
+    </script>
+   
+
+    <!--Grafico 2 -->
+
+<script>
+    
+    var data = [
+      {name: 'Extra Crítico', nivel: 2, color:"RGBA(8, 97, 68, 1.00)", cantidad:"0,9%"},
+      {name: 'Crítico', nivel: 3, color:"RGBA(8, 97, 68, 0.65)", cantidad:"3,8%"},
+      {name: 'Vulnerable', nivel: 4, color:"RGBA(8, 97, 68, 0.4)", cantidad:"1,5%"},
+      {name: 'Menor', nivel: 5, color:"RGBA(8, 97, 68, 0.25)", cantidad:"6,1%"},
+    ]    
+    var esto = d3.select("#chart-2").attr("width", "100%").attr("height", "400").style("background", "RGBA(132, 221, 193, 1.00)");
+    var g = esto.selectAll("g")
+      .data(data)
+      .enter()
+      .append("g")  
+    g.append("circle")
+      .attr("cx", function(d, i) { return (125 * (i++)+100); })
+      .attr("cy", function(d) { return 200; })
+      .attr("r", function(d) { return d.nivel*10; })
+      .attr("fill",function(d){ return d.color; })
+    g.append("text")
+      .attr("x", function(d, i) { return (125 * (i++)+100); })
+      .attr("y", function(d, i) { return 300; })
+      .attr("fill","white")
+      .attr('text-anchor','middle')
+      .text(function(d) { return d.name; })
+     g.append("text")
+      .attr("x", function(d, i) { return (125 * (i++)+100); })
+      .attr("y", function(d, i) { return 205; })
+      .attr("fill","white")
+      .attr('text-anchor','middle')
+      .attr('font-size', '13')
+      .text(function(d) { return d.cantidad; })
+     </script>
+    
+</body>
+
+</html>
